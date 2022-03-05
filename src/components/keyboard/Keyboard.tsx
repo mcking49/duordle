@@ -9,7 +9,7 @@ export const Keyboard: React.FC = () => {
   };
 
   return (
-    <VStack spacing={1}>
+    <VStack spacing={1} flexShrink={0} flexGrow={0}>
       <KeyboardRow row={1} onClickKey={onClickKey} />
       <KeyboardRow row={2} onClickKey={onClickKey} />
       <KeyboardRow row={3} onClickKey={onClickKey} />
