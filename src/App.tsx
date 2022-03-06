@@ -6,6 +6,7 @@ import {
 } from "@chakra-ui/react";
 import { GameBoard } from "./components/game";
 import { Keyboard } from "./components/keyboard";
+import { GameFinishedModal } from "./components/modals/game-finished-modal";
 import GameStateProvider from "./contexts/GameState";
 
 const theme = extendTheme({
@@ -27,6 +28,8 @@ export const App = () => (
         </Box>
         <Keyboard />
       </Flex>
+
+      <GameFinishedModal />
     </GameStateProvider>
   </ChakraProvider>
 );

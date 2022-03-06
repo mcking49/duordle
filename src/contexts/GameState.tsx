@@ -1,5 +1,6 @@
 import { cloneDeep } from "lodash/fp";
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useWordOfTheDay } from "../hooks/useWordOfTheDay";
 import { VALID_GUESSES } from "../lib/validGuesses";
 import { WORD_LIST } from "../lib/words";
 import { KeyboardKey } from "../models";
@@ -26,6 +27,7 @@ export interface GameState {
   boardState: BoardRow[];
   currentGuessRow: number;
   currentGuessIndex: number;
+  gameStatus: GameStatus,
   onClickKey: (key: KeyboardKey) => void;
 }
 
@@ -34,6 +36,7 @@ const defaultState: GameState = {
   boardState: [],
   currentGuessRow: 1,
   currentGuessIndex: 0,
+  gameStatus: "INPROGRESS",
   // eslint-disable-next-line
   onClickKey: (_key: KeyboardKey) => {},
 };
@@ -54,16 +57,7 @@ const GameStateProvider: React.FC = (props) => {
   const [currentGuessIndex, setCurrentGuessIndex] = useState<number>(0);
   const [gameStatus, setGameStatus] = useState<GameStatus>("INPROGRESS");
 
-  const [answer] = useState<string>(() => {
-    let a = localStorage.getItem("answer");
-
-    if (!a) {
-      a = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)].toUpperCase();
-      localStorage.setItem("answer", a);
-    }
-
-    return a;
-  });
+  const {answer, newWord, loadingWordOfTheDay, setNewWord} = useWordOfTheDay();
 
   const isLastIndex = currentGuessIndex === 4;
   const isLastRow = currentGuessRow === 6;
@@ -97,6 +91,80 @@ const GameStateProvider: React.FC = (props) => {
     [guess5, setGuess5],
     [guess6, setGuess6],
   ];
+
+  // On app load, load the board state from storage
+  useEffect(() => {
+    if (!newWord && !loadingWordOfTheDay) {
+      console.log("Restoring game board...");
+
+      const storageBoardStateStr = localStorage.getItem("boardState");
+
+      if (storageBoardStateStr) {
+        const storedBoardState: BoardRow[] = JSON.parse(storageBoardStateStr);
+        setGuess0(storedBoardState[0]);
+        setGuess1(storedBoardState[1]);
+        setGuess2(storedBoardState[2]);
+        setGuess3(storedBoardState[3]);
+        setGuess4(storedBoardState[4]);
+        setGuess5(storedBoardState[5]);
+        setGuess6(storedBoardState[6]);
+      }
+
+      const guessIndex = localStorage.getItem("currentGuessIndex");
+
+      if (guessIndex) {
+        setCurrentGuessIndex(Number(guessIndex));
+      }
+
+      const guessRowIndex = localStorage.getItem("currentGuessRow");
+
+      if (guessRowIndex) {
+        setCurrentGuessRow(Number(guessRowIndex));
+      }
+
+      const storageGameStatus = localStorage.getItem("gameStatus");
+
+      if (storageGameStatus) {
+        setGameStatus(storageGameStatus as GameStatus);
+      }
+    }
+  }, [loadingWordOfTheDay]);
+
+  // Save game state after each guess
+  useEffect(() => {
+    if (!loadingWordOfTheDay) {
+      localStorage.setItem("boardState", JSON.stringify(boardState));
+    }
+  }, [guess0, guess1, guess2, guess3, guess4, guess5, guess6, loadingWordOfTheDay]);
+
+  // Save game state after each guess
+  useEffect(() => {
+    if (!loadingWordOfTheDay) {
+      localStorage.setItem("currentGuessIndex", currentGuessIndex.toString());
+    }
+  }, [currentGuessIndex, loadingWordOfTheDay]);
+
+  // Save game state after each guess
+  useEffect(() => {
+    if (!loadingWordOfTheDay) {
+      localStorage.setItem("currentGuessRow", currentGuessRow.toString());
+    }
+  }, [currentGuessRow, loadingWordOfTheDay]);
+
+  // Save game state after each guess
+  useEffect(() => {
+    if (!loadingWordOfTheDay) {
+      localStorage.setItem("gameStatus", gameStatus);
+    }
+  }, [gameStatus, loadingWordOfTheDay]);
+
+  // Reset board if new word
+  useEffect(() => {
+    if (newWord) {
+      resetBoard();
+      setNewWord(false);
+    }
+  }, [newWord]);
 
   const currentRowFull = useMemo(() => {
     const [boardRow] = boardRows[currentGuessRow];
@@ -211,15 +279,27 @@ const GameStateProvider: React.FC = (props) => {
     }
   };
 
+  const resetBoard = () => {
+    setGuess0({row: [{value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}], status: "INPROGRESS"});
+    setGuess1({row: [{value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}], status: "INCOMPLETE"});
+    setGuess2({row: [{value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}], status: "INCOMPLETE"});
+    setGuess3({row: [{value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}], status: "INCOMPLETE"});
+    setGuess4({row: [{value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}], status: "INCOMPLETE"});
+    setGuess5({row: [{value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}], status: "INCOMPLETE"});
+    setGuess6({row: [{value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}, {value: "", status: "NULL"}], status: "INCOMPLETE"});
+    setCurrentGuessRow(0);
+    setCurrentGuessIndex(0);
+    setGameStatus("INPROGRESS");
+  };
+
   const value: GameState = {
     board,
     boardState,
     currentGuessRow,
     currentGuessIndex,
+    gameStatus,
     onClickKey,
   };
-
-  console.log({currentGuessIndex, guess0, answer});
 
   return (
     <GameStateContext.Provider value={value}>
