@@ -6,6 +6,7 @@ import {
 } from "@chakra-ui/react";
 import { GameBoard } from "./components/game";
 import { Keyboard } from "./components/keyboard";
+import GameStateProvider from "./contexts/GameState";
 
 const theme = extendTheme({
   styles: {
@@ -19,11 +20,13 @@ const theme = extendTheme({
 
 export const App = () => (
   <ChakraProvider theme={theme}>
-    <Flex textAlign="center" fontSize="xl" height="100%" width="100vw" p={3} flexDirection="column">
-      <Box flexGrow={1}>
-        <GameBoard />
-      </Box>
-      <Keyboard />
-    </Flex>
+    <GameStateProvider>
+      <Flex textAlign="center" fontSize="xl" height="100%" width="100vw" p={3} flexDirection="column">
+        <Box flexGrow={1}>
+          <GameBoard />
+        </Box>
+        <Keyboard />
+      </Flex>
+    </GameStateProvider>
   </ChakraProvider>
 );

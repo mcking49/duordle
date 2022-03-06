@@ -16,7 +16,7 @@ export const Key: React.FC<KeyProps> = ({
   const handleClick: React.MouseEventHandler<HTMLButtonElement> = useCallback((event) => {
     onClick(keyboardKey);
     event.currentTarget.blur();
-  }, []);
+  }, [keyboardKey, onClick]);
 
   const button = useMemo(() => {
     if (keyboardKey === "DELETE") {
@@ -26,7 +26,7 @@ export const Key: React.FC<KeyProps> = ({
     } else {
       return <Button size="sm" onClick={handleClick}>{keyboardKey}</Button>;
     }
-  }, [keyboardKey, onClick]);
+  }, [keyboardKey, handleClick]);
 
   return button;
 };
