@@ -1,37 +1,35 @@
 import {
-  ChakraProvider,
   Box,
-  Text,
-  Link,
-  VStack,
-  Code,
-  Grid,
-  theme,
+  ChakraProvider,
+  extendTheme,
+  Flex,
 } from "@chakra-ui/react";
-import { ColorModeSwitcher } from "./ColorModeSwitcher";
-import { Logo } from "./Logo";
+import { GameBoard } from "./components/game";
+import { Keyboard } from "./components/keyboard";
+import { GameFinishedModal } from "./components/modals/game-finished-modal";
+import GameStateProvider from "./contexts/GameState";
+
+const theme = extendTheme({
+  styles: {
+    global: {
+      "html, body, #root": {
+        height: "100%",
+      },
+    },
+  },
+});
 
 export const App = () => (
   <ChakraProvider theme={theme}>
-    <Box textAlign="center" fontSize="xl">
-      <Grid minH="100vh" p={3}>
-        <ColorModeSwitcher justifySelf="flex-end" />
-        <VStack spacing={8}>
-          <Logo h="40vmin" pointerEvents="none" />
-          <Text>
-            Edit <Code fontSize="xl">src/App.tsx</Code> and save to reload.
-          </Text>
-          <Link
-            color="teal.500"
-            href="https://chakra-ui.com"
-            fontSize="2xl"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn Chakra
-          </Link>
-        </VStack>
-      </Grid>
-    </Box>
+    <GameStateProvider>
+      <Flex textAlign="center" fontSize="xl" height="100%" width="100vw" p={3} flexDirection="column">
+        <Box flexGrow={1}>
+          <GameBoard />
+        </Box>
+        <Keyboard />
+      </Flex>
+
+      <GameFinishedModal />
+    </GameStateProvider>
   </ChakraProvider>
 );
