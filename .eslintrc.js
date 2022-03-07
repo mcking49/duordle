@@ -28,6 +28,10 @@ module.exports = {
     "@typescript-eslint",
   ],
   rules: {
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_" },
+    ],
     "comma-dangle": [
       "error",
       "always-multiline",
