@@ -28,6 +28,7 @@ export interface GameState {
   currentGuessRow: number;
   currentGuessIndex: number;
   gameStatus: GameStatus,
+  gameWon: boolean;
   onClickKey: (key: KeyboardKey) => void;
 }
 
@@ -36,6 +37,7 @@ const defaultState: GameState = {
   boardState: [],
   currentGuessRow: 1,
   currentGuessIndex: 0,
+  gameWon: false,
   gameStatus: "INPROGRESS",
   // eslint-disable-next-line
   onClickKey: (_key: KeyboardKey) => {},
@@ -56,6 +58,7 @@ const GameStateProvider: React.FC = (props) => {
   const [currentGuessRow, setCurrentGuessRow] = useState<number>(0);
   const [currentGuessIndex, setCurrentGuessIndex] = useState<number>(0);
   const [gameStatus, setGameStatus] = useState<GameStatus>("INPROGRESS");
+  const [gameWon, setGameWon] = useState(false);
 
   const {answer, newWord, loadingWordOfTheDay, setNewWord} = useWordOfTheDay();
 
@@ -95,8 +98,6 @@ const GameStateProvider: React.FC = (props) => {
   // On app load, load the board state from storage
   useEffect(() => {
     if (!newWord && !loadingWordOfTheDay) {
-      console.log("Restoring game board...");
-
       const storageBoardStateStr = localStorage.getItem("boardState");
 
       if (storageBoardStateStr) {
@@ -126,6 +127,12 @@ const GameStateProvider: React.FC = (props) => {
 
       if (storageGameStatus) {
         setGameStatus(storageGameStatus as GameStatus);
+      }
+
+      const gw = localStorage.getItem("gameWon");
+
+      if (typeof gw === "string") {
+        setGameWon(gw === "true");
       }
     }
   }, [loadingWordOfTheDay]);
@@ -157,6 +164,13 @@ const GameStateProvider: React.FC = (props) => {
       localStorage.setItem("gameStatus", gameStatus);
     }
   }, [gameStatus, loadingWordOfTheDay]);
+
+  // Save game state after each guess
+  useEffect(() => {
+    if (!loadingWordOfTheDay) {
+      localStorage.setItem("gameWon", gameWon.toString());
+    }
+  }, [gameWon, loadingWordOfTheDay]);
 
   // Reset board if new word
   useEffect(() => {
@@ -215,8 +229,12 @@ const GameStateProvider: React.FC = (props) => {
               }
             }
           }
-          const gameWon = row.row.map(val => val.status === "CORRECT").filter(val => !!val).length === 5;
-          if (gameWon) {
+          const gw = row.row.map(val => val.status === "CORRECT").filter(val => !!val).length === 5;
+          if (gw) {
+            setGameWon(true);
+          }
+
+          if (gw || isLastRow) {
             setGameStatus("FINISHED");
           }
 
@@ -298,6 +316,7 @@ const GameStateProvider: React.FC = (props) => {
     currentGuessRow,
     currentGuessIndex,
     gameStatus,
+    gameWon,
     onClickKey,
   };
 
