@@ -1,6 +1,6 @@
 import { Flex, Text } from "@chakra-ui/react";
 import React, { useMemo } from "react";
-import { BoardRow, Letter } from "../../contexts/GameState";
+import { BoardRow, Letter } from "../../hooks/useBoardState";
 
 export interface TileProps {
   boardRow: BoardRow;

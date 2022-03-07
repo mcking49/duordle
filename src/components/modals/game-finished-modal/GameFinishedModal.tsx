@@ -1,20 +1,23 @@
 import { Button, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text, useDisclosure } from "@chakra-ui/react";
 import React, { useEffect } from "react";
-import { useGameState } from "../../../contexts/GameState";
+import { useBoardState } from "../../../hooks/useBoardState";
 import { useWordOfTheDay } from "../../../hooks/useWordOfTheDay";
 
 export const GameFinishedModal: React.FC = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { gameStatus, gameWon } = useGameState();
+  const { gameStatus: gameStatus0, gameWon: gameWon0 } = useBoardState(0);
+  const { gameStatus: gameStatus1, gameWon: gameWon1 } = useBoardState(1);
   const { answer } = useWordOfTheDay();
 
+  const gameWon = gameWon0 && gameWon1;
+
   useEffect(() => {
-    if (gameStatus === "INPROGRESS") {
+    if (gameStatus0 === "INPROGRESS" && gameStatus1 === "INPROGRESS") {
       onClose();
-    } else if (gameStatus === "FINISHED") {
+    } else if (gameStatus0 === "FINISHED" && gameStatus1 === "FINISHED") {
       onOpen();
     }
-  }, [gameStatus]);
+  }, [gameStatus0, gameStatus1]);
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
