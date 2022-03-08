@@ -1,6 +1,7 @@
-import { DocumentBase, GameStatus } from ".";
+import { DocumentReference } from "firebase/firestore";
+import { DocumentBase, Game } from ".";
 
 export interface GameLobby extends DocumentBase {
-  lobbyId: string;
-  gameStatus: GameStatus;
+  gameDocRef: DocumentReference<Game>;
+  gameId: string;
 }
