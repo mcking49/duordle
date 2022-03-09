@@ -9,7 +9,7 @@ const gameConverter = firestoreConverter<Game>();
 const GAME_PATH = "games";
 const gameCollection = collection(firestore, GAME_PATH).withConverter(gameConverter);
 
-function getGameDocRef(gameId: string): DocumentReference<Game> {
+export function getGameDocRef(gameId: string): DocumentReference<Game> {
   return doc(gameCollection, gameId);
 }
 

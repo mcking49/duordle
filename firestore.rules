@@ -2,7 +2,27 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /{document=**} {
-      allow read, write: if false
+      match /game_lobbies/{gameLobbyId} {
+        allow read;
+        allow write: if canCreateGameLobby();
+      }
+
+      match /games/{gameId} {
+        allow read;
+        allow write: if canCreateGame();
+      }
+
+      function canCreateGame() {
+        let gameLobbyId = request.resource.data.gameLobbyId;
+        let createdValidLobby = existsAfter(/databases/$(database)/documents/game_lobbies/$(gameLobbyId));
+        return createdValidLobby;
+      }
+
+      function canCreateGameLobby() {
+        let gameId = request.resource.data.gameId;
+        let createdValidGame = existsAfter(/databases/$(database)/documents/games/$(gameId));
+        return createdValidGame
+      }
     }
   }
 }

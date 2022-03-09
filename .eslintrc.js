@@ -28,12 +28,13 @@ module.exports = {
     "@typescript-eslint",
   ],
   rules: {
+    "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/no-unused-vars": [
-      "error",
+      "warn",
       { "argsIgnorePattern": "^_" },
     ],
     "comma-dangle": [
-      "error",
+      "warn",
       "always-multiline",
     ],
     "indent": [
@@ -51,7 +52,7 @@ module.exports = {
     ],
     "react/prop-types": "off",
     "semi": [
-      "error",
+      "warn",
       "always",
     ],
   },
