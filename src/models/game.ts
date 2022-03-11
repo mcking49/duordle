@@ -18,3 +18,5 @@ export interface Game extends DocumentBase {
 }
 
 export type GameStatus = "pregame" | "ready" | "inprogress" | "finished";
+
+export type PlayerReady = keyof Pick<Game, "player1Ready" | "player2Ready">;

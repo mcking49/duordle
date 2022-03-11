@@ -27,6 +27,6 @@ async function doesGameLobbyExist(id: string): Promise<boolean> {
   return snapshot.exists();
 }
 
-function getGameLobbbyDocRef(gameLobbyId: string): DocumentReference<GameLobby> {
+export function getGameLobbbyDocRef(gameLobbyId: string): DocumentReference<GameLobby> {
   return doc(gameLobbyCollection, gameLobbyId);
 }

@@ -1,9 +1,9 @@
-import { collection, doc, DocumentReference, DocumentSnapshot, getDoc, serverTimestamp, writeBatch } from "firebase/firestore";
-import { Game, GameLobby } from "../../models";
+import { collection, doc, DocumentReference, DocumentSnapshot, getDoc, serverTimestamp, updateDoc, writeBatch } from "firebase/firestore";
+import { Game, GameLobby, PlayerReady, UpdateData } from "../../models";
 import { getRandomWord } from "../words";
 import { createBoardsForGame } from "./board";
 import { firestore, firestoreConverter } from "./firebaseConfig";
-import { getNewGameLobby } from "./gameLobby";
+import { getGameLobbbyDocRef, getNewGameLobby } from "./gameLobby";
 
 const gameConverter = firestoreConverter<Game>();
 const GAME_PATH = "games";
@@ -52,6 +52,7 @@ export async function createGame(player1Name: string): Promise<DocumentSnapshot<
     gameDocRef: newGameDoc,
     gameId: newGameDoc.id,
     id: newGameLobby.id,
+    lobbyOpen: true,
     updatedAt: serverTimestamp(),
   };
 
@@ -66,4 +67,48 @@ export async function createGame(player1Name: string): Promise<DocumentSnapshot<
   createBoardsForGame(newGameDoc);
 
   return getGameSnapshot(newGameDoc);
+}
+
+export async function joinGame(gameLobbyId: string, player2Name: string): Promise<DocumentSnapshot<Game>> {
+  const gameLobbyRef = getGameLobbbyDocRef(gameLobbyId);
+  const gameLobbySnapshot = await getDoc(gameLobbyRef);
+
+  if (!gameLobbySnapshot.exists()) {
+    throw new Error(`Lobby "${gameLobbyId}" does not exist`);
+  }
+
+  const gameLobbyData = gameLobbySnapshot.data();
+
+  if (!gameLobbyData.lobbyOpen) {
+    throw new Error(`Lobby "${gameLobbyId} is not open`);
+  }
+
+  const { gameDocRef } = gameLobbyData;
+
+  const batch = writeBatch(firestore);
+  batch.update(gameDocRef, {
+    isLobbyFull: true,
+    player2Name,
+    updatedAt: serverTimestamp(),
+  });
+
+  batch.update(gameLobbyRef, {
+    lobbyOpen: false,
+    updatedAt: serverTimestamp(),
+  });
+
+  await batch.commit();
+
+  return getGameSnapshot(gameDocRef);
+}
+
+export async function setPlayerReady(gameId: string, player: PlayerReady): Promise<void> {
+  const gameRef = getGameDocRef(gameId);
+
+  const data: UpdateData<Game> = {
+    updatedAt: serverTimestamp(),
+    [player]: true,
+  };
+
+  return updateDoc(gameRef, data);
 }

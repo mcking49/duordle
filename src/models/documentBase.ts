@@ -5,3 +5,5 @@ export interface DocumentBase {
   id: string;
   updatedAt: Timestamp | FieldValue;
 }
+
+export type UpdateData<T extends DocumentBase> = Required<Pick<T, "updatedAt">> & Partial<Omit<T, "updatedAt">>;

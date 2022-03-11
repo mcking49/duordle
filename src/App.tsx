@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import CreateGamePage from "./pages/CreateGamePage";
 import GamePage from "./pages/GamePage";
 import HomePage from "./pages/HomePage";
+import JoinGamePage from "./pages/JoinGamePage";
 
 const theme = extendTheme({
   styles: {
@@ -20,6 +21,7 @@ export const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="create-game" element={<CreateGamePage />} />
+          <Route path="join" element={<JoinGamePage />} />
           <Route path="game/:gameId" element={<GamePage />} />
           <Route path="/" element={<HomePage />} />
         </Routes>
