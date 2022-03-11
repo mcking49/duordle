@@ -61,6 +61,8 @@ export async function createGame(player1Name: string): Promise<DocumentSnapshot<
 
   await batch.commit();
 
+  localStorage.setItem(newGameDoc.id, "true");
+
   createBoardsForGame(newGameDoc);
 
   return getGameSnapshot(newGameDoc);
